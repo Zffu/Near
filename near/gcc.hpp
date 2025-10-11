@@ -42,8 +42,7 @@ public:
 			std::vector<fs::path> objects;
 
 			for(const auto& inpath : *source) {
-				fs::path objpath = inpath;
-				objpath.replace_extension(".o");
+				fs::path objpath = inpath.filename().string() + ".o";
 
 				objects.push_back(objpath);
 			}
@@ -74,9 +73,7 @@ public:
 			std::vector<fs::path> objects;
 
 			for(const auto& inpath : *source) {
-				fs::path objpath = inpath;
-				objpath.replace_extension(".o");
-
+				fs::path objpath = inpath.filename().string() + ".o";
 				objects.push_back(objpath);
 			}
 
@@ -87,7 +84,7 @@ public:
 			}
 
 			this->run_command(command);
-			
+
 			if(this->clean_object_files) {
 				std::cout << "Info: cleaning build files!";
 
