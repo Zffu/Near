@@ -42,6 +42,13 @@ public:
 		if(this->path_vecs.empty()) this->poll_file();
 		return Iterator(this->path_vecs.end());
 	}
+
+	void merge(FileSource other) {
+		for(std::string path : other) {
+			this->path_vecs.emplace_back(path);
+		}
+	}
+
 };
 
 class FolderFileSource: public FileSource {
