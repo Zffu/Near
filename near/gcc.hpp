@@ -19,12 +19,82 @@ class GCCCompiler: public Compiler {
 public:	
 	GCCCompiler(std::string reference): Compiler(reference) {}
 
-	inline void build(FileSource* source, std::string out) {
-		std::string command = "gcc -o " + out;
+	inline void build_unlinked(FileSource* source, CompilerOutput* output) {
+		this->compile_only = true;
+		this->build_normal(source, output);
+	}
+
+	inline void build(FileSource* source, CompilerOutput* output) {
+		if(output->type == EXECUTABLE) {
+			this->build_normal(source, output);
+			return;
+		}
+
+		if(output->type == STATIC_LIB) {
+			this->build_unlinked(source, output);
+			
+			std::string command = "ar ";
+
+			if(this->archive_insert_files) command += "r";
+			if(this->archive_create_if_not_exists) command += "c";
+			if(this->archive_index) command += "s";
+
+			std::vector<fs::path> objects;
+
+			for(const auto& inpath : *source) {
+				fs::path objpath = inpath;
+				objpath.replace_extension(".o");
+
+				objects.push_back(objpath);
+			}
+
+			command += " " + output->get_file_name();
+			
+			for(fs::path path : objects) {
+				command += " " + path.string();
+			}
+			return;
+		}
+
+		if(output->type == DYNAMIC_LIB) {
+			this->position_independant = true;
+			this->build_unlinked(source, output);
+
+			std::vector<fs::path> objects;
+
+			for(const auto& inpath : *source) {
+				fs::path objpath = inpath;
+				objpath.replace_extension(".o");
+
+				objects.push_back(objpath);
+			}
+
+			std::string command = "gcc -shared -o " + output->get_file_name();
+
+			for(fs::path path : objects) {
+				command += " " + path.string();
+			}
+
+		}
+
+
+	}
+
+	inline void optimized_settings() override {
+		this->optimization_level = 3;
+		this->debug_info = false;
+		this->archive_index = true;
+	}
+
+	inline void build_normal(FileSource* source, CompilerOutput* output) {
+		std::string command = "gcc";
 
 		if(this->compile_only) command += " -c";
+		else command += " -o " + output->get_file_name();
+
 		if(this->warnings) command += " -Wall";
 		if(this->extra_warnings) command += " -Wextra";
+		if(this->position_independant) command += " -fPIC";
 
 		std::string levels[] = {" -O0", " -O1", " -O2", " -O3", " -Os", " -Ofast"};
 
@@ -51,12 +121,11 @@ public:
 
 		source->poll_file();
 
-		for(std::string path : *source) {
-			command += " " + path;
+		for(fs::path path : *source) {
+			command += " " + path.string();
 		}
 
-		std::cout << "Running: " << command;
-		system(command.c_str());
+		this->run_command(command);
 	}
 
 

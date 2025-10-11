@@ -13,12 +13,12 @@ namespace near {
 class FileSource {
 
 protected:
-	std::vector<std::string> path_vecs;
+	std::vector<fs::path> path_vecs;
 
 public:
 
 	virtual void poll_file() {
-		this->path_vecs.emplace_back(this->path.string());
+		this->path_vecs.emplace_back(this->path);
 	}
 
 	fs::path path;
@@ -27,12 +27,12 @@ public:
 	FileSource(fs::path p): path(p) {}
 
 	class Iterator {
-        std::vector<std::string>::iterator it;
+        std::vector<fs::path>::iterator it;
 
     public:
-        Iterator(std::vector<std::string>::iterator init) : it(init) {}
+        Iterator(std::vector<fs::path>::iterator init) : it(init) {}
 
-        std::string& operator*() { return *it; }
+        fs::path& operator*() { return *it; }
         Iterator& operator++() { ++it; return *this; }
         bool operator!=(const Iterator& other) const { return it != other.it; }
     };
@@ -48,7 +48,7 @@ public:
 	}
 
 	void merge(FileSource other) {
-		for(std::string path : other) {
+		for(fs::path path : other) {
 			this->path_vecs.emplace_back(path);
 		}
 	}
