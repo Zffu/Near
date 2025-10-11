@@ -24,10 +24,12 @@ public:
 		
 		if(this->use_singleton_building) {
 			for(fs::path p : *source) {
+				if(p.extension().string() == ".o") continue;
+				
 				fs::path obj = to_object_file(p);
 
 				this->build_files.push_back(obj);
-				this->build_singular(source, obj);
+				this->build_singular(&FileSource(p), obj);
 			}
 			return;
 		}
