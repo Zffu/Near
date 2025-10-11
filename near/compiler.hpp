@@ -13,6 +13,20 @@ enum OutputType {
 	DYNAMIC_LIB
 };
 
+static fs::path to_object_file(fs::path p) {
+	fs::path path = p;
+	p.replace_extension(".o");
+
+	return p;
+}
+
+static fs::path to_object_file_non_singleton(fs::path p) {
+	fs::path path = p.filename();
+	path.replace_extension(".o");
+
+	return p;
+}
+
 class CompilerOutput {
 public:
 	std::string name;
@@ -50,6 +64,8 @@ protected:
 		system(cmd.c_str());
 	}
 
+	std::vector<fs::path> build_files;
+
 public:
 	bool compile_only;
 
@@ -65,6 +81,8 @@ public:
 	bool archive_index;
 
 	bool position_independant;
+
+	bool use_singleton_building;
 
 	bool debug_info;
 
@@ -89,6 +107,8 @@ public:
 		this->archive_create_if_not_exists = true;
 		this->archive_index = true;
 
+		this->use_singleton_building = false;
+
 		this->position_independant = false;
 	}
 
@@ -109,6 +129,16 @@ public:
 		this->optimization_level = 0;
 		this->warnings = true;
 		this->extra_warnings = true;
+	}
+
+	void post_build() {
+		if(this->clean_object_files) {
+			std::cout << "INFO: Cleaning build files!";
+			
+			for(fs::path p : this->build_files) {
+				if(fs::exists(p)) fs::remove(p);
+			}
+		}
 	}
 
 	inline virtual void optimized_settings() {

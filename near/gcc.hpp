@@ -21,97 +21,29 @@ public:
 
 	inline void build_unlinked(FileSource* source, CompilerOutput* output) {
 		this->compile_only = true;
-		this->build_normal(source, output);
-	}
+		
+		if(this->use_singleton_building) {
+			for(fs::path p : *source) {
+				fs::path obj = to_object_file(p);
 
-	inline void build(FileSource* source, CompilerOutput* output) {
-		if(output->type == EXECUTABLE) {
-			this->build_normal(source, output);
+				this->build_files.push_back(obj);
+				this->build_singular(source, obj);
+			}
 			return;
 		}
 
-		if(output->type == STATIC_LIB) {
-			this->build_unlinked(source, output);
-			
-			std::string command = "ar ";
-
-			if(this->archive_insert_files) command += "r";
-			if(this->archive_create_if_not_exists) command += "c";
-			if(this->archive_index) command += "s";
-
-			std::vector<fs::path> objects;
-
-			for(const auto& inpath : *source) {
-				fs::path objpath = inpath.filename();
-				objpath.replace_extension(".o");
-
-				objects.push_back(objpath);
-			}
-
-			command += " " + output->get_file_name();
-			
-			for(fs::path path : objects) {
-				command += " " + path.string();
-			}
-
-			this->run_command(command);
-
-			if(this->clean_object_files) {
-				std::cout << "Info: cleaning build files!";
-
-				for(fs::path path : objects) {
-					if(fs::exists(path)) fs::remove(path);
-				}
-			}
-
-			return;
+		for(fs::path p : *source) {
+			this->build_files.push_back(to_object_file_non_singleton(p));
 		}
 
-		if(output->type == DYNAMIC_LIB) {
-			this->position_independant = true;
-			this->build_unlinked(source, output);
-
-			std::vector<fs::path> objects;
-
-			for(const auto& inpath : *source) {
-				fs::path objpath = inpath.filename();
-				objpath.replace_extension(".o");
-				
-				objects.push_back(objpath);
-			}
-
-			std::string command = "gcc -shared -o " + output->get_file_name();
-
-			for(fs::path path : objects) {
-				command += " " + path.string();
-			}
-
-			this->run_command(command);
-
-			if(this->clean_object_files) {
-				std::cout << "Info: cleaning build files!";
-
-				for(fs::path path : objects) {
-					if(fs::exists(path)) fs::remove(path);
-				}
-			}
-		}
-
-
+		this->build_outputless(source);
 	}
 
-	inline void optimized_settings() override {
-		this->optimization_level = 3;
-		this->debug_info = false;
-		this->archive_index = true;
-	}
-
-	inline void build_normal(FileSource* source, CompilerOutput* output) {
+	inline std::string prepare_build_command(FileSource* source) {
 		std::string command = "gcc";
 
 		if(this->compile_only) command += " -c";
-		else command += " -o " + output->get_file_name();
-
+	
 		if(this->warnings) command += " -Wall";
 		if(this->extra_warnings) command += " -Wextra";
 		if(this->position_independant) command += " -fPIC";
@@ -144,6 +76,77 @@ public:
 		for(fs::path path : *source) {
 			command += " " + path.string();
 		}
+
+		return command;
+	}
+
+	inline void build(FileSource* source, CompilerOutput* output) {
+		
+		if(output->type == EXECUTABLE) {
+			this->build_normal(source, output);
+			this->post_build();
+			return;
+		}
+
+		if(output->type == STATIC_LIB) {
+			this->build_unlinked(source, output);
+			
+			std::string command = "ar ";
+
+			if(this->archive_insert_files) command += "r";
+			if(this->archive_create_if_not_exists) command += "c";
+			if(this->archive_index) command += "s";
+
+			command += " " + output->get_file_name();
+			
+			for(fs::path path : this->build_files) {
+				command += " " + path.string();
+			}
+
+			this->run_command(command);
+			this->post_build();
+			return;
+		}
+
+		if(output->type == DYNAMIC_LIB) {
+			this->position_independant = true;
+			this->build_unlinked(source, output);
+
+			std::string command = "gcc -shared -o " + output->get_file_name();
+
+			for(fs::path path : this->build_files) {
+				command += " " + path.string();
+			}
+
+			this->run_command(command);
+			this->post_build();
+		}
+
+
+	}
+
+	inline void optimized_settings() override {
+		this->optimization_level = 3;
+		this->debug_info = false;
+		this->archive_index = true;
+	}
+
+	inline void build_outputless(FileSource* source) {
+		this->run_command(this->prepare_build_command(source));
+	}
+
+	inline void build_singular(FileSource* source, fs::path out) {
+		std::string command = this->prepare_build_command(source);
+
+		command += " -o " + out.string();
+		
+		this->run_command(command);
+	}
+
+	inline void build_normal(FileSource* source, CompilerOutput* output) {
+		std::string command = this->prepare_build_command(source);
+
+		command += " -o " + output->get_file_name();
 
 		this->run_command(command);
 	}
