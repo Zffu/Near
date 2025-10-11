@@ -58,10 +58,11 @@ public:
 class FolderFileSource: public FileSource {
 private:
 	std::vector<std::string> extensions;
+	std::vector<fs::path> ignored_paths;
 
 	void find_files(const fs::path& path) {
 		for(const auto& entry : fs::directory_iterator(path)) {
-			if(fs::is_directory(entry)) {
+			if(fs::is_directory(entry) && std::find(this->ignored_paths.begin(), this->ignored_paths.end(), path) != this->ignored_paths.end()) {
 				find_files(entry.path());
 			} else if(fs::is_regular_file(entry) && std::find(this->extensions.begin(), this->extensions.end(), entry.path().extension().string()) != this->extensions.end()) {
 				this->path_vecs.emplace_back(entry.path().string());
@@ -79,6 +80,10 @@ public:
 	
 	void add_ext(std::string ext) {
 		this->extensions.emplace_back(ext);
+	}
+
+	void add_ignored_path(fs::path path) {
+		this->ignored_paths.emplace_back(path);
 	}
 
 };
