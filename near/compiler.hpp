@@ -52,6 +52,9 @@ protected:
 
 public:
 	bool compile_only;
+
+	bool clean_object_files;
+
 	bool warnings;
 	bool extra_warnings;
 
@@ -74,6 +77,8 @@ public:
 	Compiler(std::string ref) {
 		this->ref = ref;
 		this->compile_only = false;
+
+		this->clean_object_files = true;
 
 		this->warnings = false;
 		this->extra_warnings = false;

@@ -53,6 +53,17 @@ public:
 			for(fs::path path : objects) {
 				command += " " + path.string();
 			}
+
+			this->run_command(command);
+
+			if(this->clean_object_files) {
+				std::cout << "Info: cleaning build files!";
+
+				for(fs::path path : objects) {
+					if(fs::exists(path)) fs::remove(path);
+				}
+			}
+
 			return;
 		}
 
@@ -75,6 +86,15 @@ public:
 				command += " " + path.string();
 			}
 
+			this->run_command(command);
+			
+			if(this->clean_object_files) {
+				std::cout << "Info: cleaning build files!";
+
+				for(fs::path path : objects) {
+					if(fs::exists(path)) fs::remove(path);
+				}
+			}
 		}
 
 
