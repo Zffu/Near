@@ -1,3 +1,5 @@
+#pragma once
+
 #include <filesystem>
 #include <string>
 
@@ -13,15 +15,16 @@ class FileSource {
 protected:
 	std::vector<std::string> path_vecs;
 
+public:
+
 	virtual void poll_file() {
-		this->path_vecs.emplace_back(this->path);
+		this->path_vecs.emplace_back(this->path.string());
 	}
 
-public:
-	std::string path;
+	fs::path path;
 
 	FileSource(): path(".") {}
-	FileSource(std::string p): path(p) {}
+	FileSource(fs::path p): path(p) {}
 
 	class Iterator {
         std::vector<std::string>::iterator it;
@@ -60,8 +63,8 @@ private:
 		for(const auto& entry : fs::directory_iterator(path)) {
 			if(fs::is_directory(entry)) {
 				find_files(entry.path());
-			} else if(fs::is_regular_file(entry) && std::find(this->extensions.begin(), this->extensions.end(), entry.path().extension()) != this->extensions.end()) {
-				this->path_vecs.emplace_back(entry.path());
+			} else if(fs::is_regular_file(entry) && std::find(this->extensions.begin(), this->extensions.end(), entry.path().extension().string()) != this->extensions.end()) {
+				this->path_vecs.emplace_back(entry.path().string());
 			}
 		}
 	}
@@ -72,7 +75,7 @@ private:
 
 public:
 	FolderFileSource(): FileSource() {}
-	FolderFileSource(std::string path): FileSource(path) {}
+	FolderFileSource(fs::path path): FileSource(path) {}
 	
 	void add_ext(std::string ext) {
 		this->extensions.emplace_back(ext);

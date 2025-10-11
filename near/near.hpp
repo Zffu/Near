@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 #include <iostream>
 #include <functional>
@@ -16,16 +18,17 @@ public:
 	}
 
 	static void init(int argc, char** argv) {
-		if(argc < 1) {
-			std::cerr << "Usage: exec <profile>";
+		if(argc < 2) {
+			std::cout << "Usage: exec <profile>";
+			return;
 		}
 
-		Near::current_profile = argv[0];
+		Near::current_profile = argv[1];
 
-		if(Near::profiles.find(Near::current_profile) != Near::profiles.end()) {
+		if(Near::profiles.contains(Near::current_profile)) {
 			Near::profiles.at(Near::current_profile)();
 		} else {
-			std::cerr << "Error: The given profile doesn't exist! Here are the available profiles:\n";
+			std::cout << "Error: The profile " << Near::current_profile << " doesn't exist! Here are the available profiles:\n";
 
 			for(const auto& [key, val] : Near::profiles) {
 				std::cerr << "- " << key << "\n";
@@ -35,5 +38,6 @@ public:
 };
 
 std::string Near::current_profile = "";
+std::unordered_map<std::string, std::function<void()>> Near::profiles = {}; 
 
 }

@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vector>
 #include <string>
 
@@ -50,7 +52,7 @@ public:
 		this->extra_warnings = true;
 	}
 
-	inline virtual void build(FileSource* source, std::string out);
+	inline virtual void build(FileSource* source, std::string out) {}
 
 };
 

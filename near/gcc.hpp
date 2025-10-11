@@ -1,3 +1,5 @@
+#pragma once
+
 #include <near/compiler.hpp>
 
 #include <cstdlib>
@@ -14,9 +16,9 @@ enum GCCOptimizationLevel {
 };
 
 class GCCCompiler: public Compiler {
-
-GCCCompiler(std::string reference): Compiler(reference) {}
 public:	
+	GCCCompiler(std::string reference): Compiler(reference) {}
+
 	inline void build(FileSource* source, std::string out) {
 		std::string command = "gcc -o " + out;
 
@@ -47,9 +49,14 @@ public:
 
 		command += " -std=" + this->ref;
 
+		source->poll_file();
+
 		for(std::string path : *source) {
 			command += " " + path;
 		}
+
+		std::cout << "Running: " << command;
+		system(command.c_str());
 	}
 
 
