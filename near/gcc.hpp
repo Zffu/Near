@@ -42,7 +42,8 @@ public:
 			std::vector<fs::path> objects;
 
 			for(const auto& inpath : *source) {
-				fs::path objpath = inpath.filename().string() + ".o";
+				fs::path objpath = inpath.filename();
+				objpath.replace_extension(".o");
 
 				objects.push_back(objpath);
 			}
@@ -73,7 +74,9 @@ public:
 			std::vector<fs::path> objects;
 
 			for(const auto& inpath : *source) {
-				fs::path objpath = inpath.filename().string() + ".o";
+				fs::path objpath = inpath.filename();
+				objpath.replace_extension(".o");
+				
 				objects.push_back(objpath);
 			}
 
