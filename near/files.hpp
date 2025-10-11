@@ -1,6 +1,7 @@
 #include <filesystem>
 #include <string>
 
+#include <algorithm>
 #include <vector>
 
 namespace fs = std::filesystem;
@@ -53,12 +54,13 @@ public:
 
 class FolderFileSource: public FileSource {
 private:
+	std::vector<std::string> extensions;
 
 	void find_files(const fs::path& path) {
 		for(const auto& entry : fs::directory_iterator(path)) {
 			if(fs::is_directory(entry)) {
 				find_files(entry.path());
-			} else if(fs::is_regular_file(entry)) {
+			} else if(fs::is_regular_file(entry) && std::find(this->extensions.begin(), this->extensions.end(), entry.path().extension()) != this->extensions.end()) {
 				this->path_vecs.emplace_back(entry.path());
 			}
 		}
@@ -71,6 +73,10 @@ private:
 public:
 	FolderFileSource(): FileSource() {}
 	FolderFileSource(std::string path): FileSource(path) {}
+	
+	void add_ext(std::string ext) {
+		this->extensions.emplace_back(ext);
+	}
 
 };
 

@@ -1,6 +1,8 @@
 #include <vector>
 #include <string>
 
+#include <near/files.hpp>
+
 namespace near {
 
 class Compiler {
@@ -47,6 +49,8 @@ public:
 		this->warnings = true;
 		this->extra_warnings = true;
 	}
+
+	inline virtual void build(FileSource* source, std::string out);
 
 };
 
