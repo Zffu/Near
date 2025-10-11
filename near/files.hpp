@@ -47,8 +47,11 @@ public:
 		return Iterator(this->path_vecs.end());
 	}
 
-	void merge(FileSource other) {
-		for(fs::path path : other) {
+	void merge(FileSource* other) {
+		other->poll_file();
+		this->poll_file();
+		
+		for(fs::path path : *other) {
 			this->path_vecs.emplace_back(path);
 		}
 	}
@@ -61,17 +64,18 @@ private:
 	std::vector<fs::path> ignored_paths;
 
 	void find_files(const fs::path& path) {
+		std::cout << " Bob";
 		for(const auto& entry : fs::directory_iterator(path)) {
-			if(fs::is_directory(entry) && std::find(this->ignored_paths.begin(), this->ignored_paths.end(), path) != this->ignored_paths.end()) {
+			if(fs::is_directory(entry) && std::find(this->ignored_paths.begin(), this->ignored_paths.end(), path) == this->ignored_paths.end()) {
 				find_files(entry.path());
 			} else if(fs::is_regular_file(entry) && std::find(this->extensions.begin(), this->extensions.end(), entry.path().extension().string()) != this->extensions.end()) {
-				this->path_vecs.emplace_back(entry.path().string());
+				this->path_vecs.push_back(entry.path().string());
 			}
 		}
 	}
 
 	void poll_file() override {
-		if(fs::exists(this->path)) this->find_files(this->path);
+		this->find_files(this->path);
 	}
 
 public:

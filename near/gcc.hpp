@@ -29,7 +29,10 @@ public:
 				fs::path obj = to_object_file(p);
 
 				this->build_files.push_back(obj);
-				this->build_singular(&FileSource(p), obj);
+
+				FileSource pe(p);
+
+				this->build_singular(&pe, obj);
 			}
 			return;
 		}
@@ -105,6 +108,11 @@ public:
 				command += " " + path.string();
 			}
 
+			for(fs::path path : *source) {
+				if(path.extension().string() != ".o") continue;
+				command += " " + path.string();
+			}
+ 
 			this->run_command(command);
 			this->post_build();
 			return;
