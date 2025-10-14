@@ -158,6 +158,10 @@ public:
 				command += " " + path.string();
 			}
 
+			for(fs::path path : this->compile_against_libs) {
+				command += " " + path.string();
+			}
+
 			if(!this->run_command(command)) {
 				this->fail_build();
 				return;
