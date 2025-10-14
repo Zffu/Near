@@ -100,7 +100,7 @@ public:
 	std::vector<std::string> lib_paths;
 	std::vector<std::string> libs;
 
-	std::vector<fs::path> compile_against_libs;
+	FileSource* compile_against_libs;
 
 	std::string ref;
 
@@ -132,8 +132,8 @@ public:
 		this->include_paths.emplace_back(path);
 	}
 
-	void bind_lib(fs::path path) {
-		this->compile_against_libs.emplace_back(path);
+	void bind_libs(FileSource* source) {
+		this->compile_against_libs = source;
 	}
 
 	void add_lib(std::string lib) {
