@@ -126,6 +126,11 @@ public:
 				command += " " + path.string();
 			}
 
+			for(fs::path path : *source) {
+				if(path.extension().string() != ".o") continue;
+				command += " " + path.string();
+			}
+
 			if(!this->run_command(command)) {
 				this->fail_build();
 				return;
@@ -145,6 +150,11 @@ public:
 			std::string command = "gcc -shared -o " + output->get_file_name();
 
 			for(fs::path path : this->build_files) {
+				command += " " + path.string();
+			}
+
+			for(fs::path path : *source) {
+				if(path.extension().string() != ".o") continue;
 				command += " " + path.string();
 			}
 
