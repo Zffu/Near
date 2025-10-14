@@ -1,15 +1,26 @@
 #include <near/file.hpp>
 #include <near/compile/target.hpp>
 
+#include <type_traits>
+#include <bitset>
+
 namespace near {
 
-class NearCompiler {
+template <typename T, T last_one> class NearCompiler {
+	static_assert(std::is_enum_v<T>, "T must be enum!");
+
 private:
-	bool run_compiler(FileStream stream, CompilerTarget target);
+	std::bitset<last_one> options;
+
+	bool run_compiler(FileStream stream, CompilerTarget target) {}
 
 public:
-	bool compile(FileStream stream, CompilerTarget target);
-	bool compileToObject(FileStream stream, MultiFileCompilerTarget target);
+	virtual bool compile(FileStream stream, CompilerTarget target) {}
+	virtual bool compileToObject(FileStream stream, MultiFileCompilerTarget target) {}
+
+	bool is_option_enabled(T option);
+	void enable_option(T option);
+	void disable_option(T option);
 
 };
 
