@@ -16,8 +16,13 @@ enum GCCOptimizationLevel {
 };
 
 class GCCCompiler: public Compiler {
+protected:
+	bool useCPP;
+
 public:	
-	GCCCompiler(std::string reference): Compiler(reference) {}
+	GCCCompiler(std::string reference, bool useCplusplus = false): Compiler(reference) {
+		this->useCPP = useCplusplus;
+	}
 
 	inline bool build_unlinked(FileSource* source, CompilerOutput* output) {
 		this->compile_only = true;
@@ -48,7 +53,9 @@ public:
 	}
 
 	inline std::string prepare_build_command(FileSource* source) {
-		std::string command = "gcc";
+		source->poll_file();
+
+		std::string command = (this->useCPP ? "g++" : "gcc");
 
 		if(this->compile_only) command += " -c";
 	
@@ -78,8 +85,6 @@ public:
 		}
 
 		command += " -std=" + this->ref;
-
-		source->poll_file();
 
 		for(fs::path path : *source) {
 			command += " " + path.string();
