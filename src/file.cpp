@@ -1,6 +1,6 @@
 #include <near/file.hpp>
 
-using namespace near::io;
+using namespace near;
 
 FileStream::FileStream(fs::path dir) {
 	this->directories.push_back(dir);

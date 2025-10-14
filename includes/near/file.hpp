@@ -9,7 +9,7 @@
 
 namespace fs = std::filesystem;
 
-namespace near::io {
+namespace near {
 
 class FileStream {
 protected:
