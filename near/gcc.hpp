@@ -144,7 +144,7 @@ public:
 				this->fail_build();
 				return;
 			}
-			
+
 			this->post_build();
 		}
 
