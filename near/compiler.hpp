@@ -59,9 +59,19 @@ public:
 
 class Compiler {
 protected:
-	void run_command(std::string cmd) {
+	bool run_command(std::string cmd) {
 		std::cout << "Running command: " << cmd;
-		system(cmd.c_str());
+		int res = system(cmd.c_str());
+
+#ifdef _WIN32	
+		return res == 0;
+#else
+		return WIFEXITED(res) && WEXITSTATUS(res) == 0;
+#endif
+	}
+
+	void fail_build() {
+		std::cout << "Build failed!";
 	}
 
 	std::vector<fs::path> build_files;

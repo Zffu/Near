@@ -19,7 +19,7 @@ class GCCCompiler: public Compiler {
 public:	
 	GCCCompiler(std::string reference): Compiler(reference) {}
 
-	inline void build_unlinked(FileSource* source, CompilerOutput* output) {
+	inline bool build_unlinked(FileSource* source, CompilerOutput* output) {
 		this->compile_only = true;
 		
 		if(this->use_singleton_building) {
@@ -29,16 +29,22 @@ public:
 				fs::path obj = to_object_file(p);
 
 				this->build_files.push_back(obj);
-				this->build_singular(&FileSource(p), obj);
+				if(!this->build_singular(&FileSource(p), obj)) {
+					return false;
+				}
 			}
-			return;
+			return true;
 		}
 
 		for(fs::path p : *source) {
 			this->build_files.push_back(to_object_file_non_singleton(p));
 		}
 
-		this->build_outputless(source);
+		if(!this->build_outputless(source)) {
+			return false;
+		}
+
+		return true;
 	}
 
 	inline std::string prepare_build_command(FileSource* source) {
@@ -85,13 +91,20 @@ public:
 	inline void build(FileSource* source, CompilerOutput* output) {
 		
 		if(output->type == EXECUTABLE) {
-			this->build_normal(source, output);
+			if(!this->build_normal(source, output)) {
+				this->fail_build();
+				return;
+			}
+
 			this->post_build();
 			return;
 		}
 
 		if(output->type == STATIC_LIB) {
-			this->build_unlinked(source, output);
+			if(!this->build_unlinked(source, output)) {
+				this->fail_build();
+				return;
+			}
 			
 			std::string command = "ar ";
 
@@ -105,14 +118,21 @@ public:
 				command += " " + path.string();
 			}
 
-			this->run_command(command);
+			if(!this->run_command(command)) {
+				this->fail_build();
+				return;
+			}
+
 			this->post_build();
 			return;
 		}
 
 		if(output->type == DYNAMIC_LIB) {
 			this->position_independant = true;
-			this->build_unlinked(source, output);
+			if(!this->build_unlinked(source, output)) {
+				this->fail_build();
+				return;
+			}
 
 			std::string command = "gcc -shared -o " + output->get_file_name();
 
@@ -120,7 +140,11 @@ public:
 				command += " " + path.string();
 			}
 
-			this->run_command(command);
+			if(!this->run_command(command)) {
+				this->fail_build();
+				return;
+			}
+			
 			this->post_build();
 		}
 
@@ -133,24 +157,24 @@ public:
 		this->archive_index = true;
 	}
 
-	inline void build_outputless(FileSource* source) {
-		this->run_command(this->prepare_build_command(source));
+	inline bool build_outputless(FileSource* source) {
+		return this->run_command(this->prepare_build_command(source));
 	}
 
-	inline void build_singular(FileSource* source, fs::path out) {
+	inline bool build_singular(FileSource* source, fs::path out) {
 		std::string command = this->prepare_build_command(source);
 
 		command += " -o " + out.string();
 		
-		this->run_command(command);
+		return this->run_command(command);
 	}
 
-	inline void build_normal(FileSource* source, CompilerOutput* output) {
+	inline bool build_normal(FileSource* source, CompilerOutput* output) {
 		std::string command = this->prepare_build_command(source);
 
 		command += " -o " + output->get_file_name();
 
-		this->run_command(command);
+		return this->run_command(command);
 	}
 
 
