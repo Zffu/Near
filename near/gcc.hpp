@@ -34,7 +34,10 @@ public:
 				fs::path obj = to_object_file(p);
 
 				this->build_files.push_back(obj);
-				if(!this->build_singular(&FileSource(p), obj)) {
+
+				FileSource source(p);
+
+				if(!this->build_singular(&source, obj)) {
 					return false;
 				}
 			}
