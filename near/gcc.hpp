@@ -162,7 +162,7 @@ public:
 				command += " " + path.string();
 			}
 
-			for(fs::path path : this->compile_against_libs) {
+			for(fs::path path : *this->compile_against_libs) {
 				command += " " + path.string();
 			}
 
