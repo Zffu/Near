@@ -151,7 +151,8 @@ public:
 				return;
 			}
 
-			std::string command = "gcc -shared -o " + output->get_file_name();
+			std::string command = (this->useCPP ? "gcc" : "g++");
+			command += " -shared -o " + output->get_file_name();
 
 			for(fs::path path : this->build_files) {
 				command += " " + path.string();
