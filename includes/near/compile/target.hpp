@@ -12,11 +12,10 @@ enum CompilerTargetType {
 };
 
 class CompilerTarget {
-private:
+public:
 	std::string name;
 	CompilerTargetType type;
 
-public:
 	CompilerTarget(std::string n, CompilerTargetType type): name(n) {
 		this->type = type;
 	}

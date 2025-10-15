@@ -1,5 +1,7 @@
 #include <near/compile/gcc.hpp>
 
+#include <iostream>
+
 using namespace near::gcc;
 
 std::string GCCCompiler::get_flag_cmd(GCCCompilerFlags flag) {
@@ -34,4 +36,10 @@ std::string GCCCompiler::get_option_cmd(GCCCompilerOptions option) {
 	}
 
 	return o;
+}
+
+bool GCCCompiler::run_compiler(FileStream source, CompilerTarget target) {
+	if(target.type != CompilerTargetType::OBJECT_FILE && this->is_flag_enabled(GCCCompilerFlags::LINK_ONLY)) {
+		
+	}
 }

@@ -18,11 +18,16 @@ private:
 	std::bitset<last_flag> flags;
 	int options[last_option];
 
-	bool run_compiler(FileStream stream, CompilerTarget target) {}
+	virtual bool run_compiler(FileStream stream, CompilerTarget target) {}
 
 public:
 	virtual bool compile(FileStream stream, CompilerTarget target) {}
 	virtual bool compileToObject(FileStream stream, MultiFileCompilerTarget target) {}
+
+	/**
+	 * Can be .o files or .dlls
+	 */
+	FileStream dependencies;
 
 	bool is_flag_enabled(F option);
 	void enable_flag(F option);

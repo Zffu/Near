@@ -48,6 +48,9 @@ enum GCCCompilerFlags {
 };
 
 class GCCCompiler: public NearCompiler<GCCCompilerFlags, GCCCompilerOptions, DEBUG, FVISIBILITY> {
+private:
+	bool run_compiler(FileStream source, CompilerTarget target) override;
+	
 public:
 	std::string get_flag_cmd(GCCCompilerFlags flag) override;
 	std::string get_option_cmd(GCCCompilerOptions option) override;
