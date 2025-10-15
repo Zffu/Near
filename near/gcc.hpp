@@ -160,11 +160,6 @@ public:
 				command += " " + path.string();
 			}
 
-			for(fs::path path : *source) {
-				if(path.extension().string() != ".o") continue;
-				command += " " + path.string();
-			}
-
 			for(fs::path path : *this->compile_against_libs) {
 				command += " " + path.string();
 			}
