@@ -76,6 +76,7 @@ private:
 	}
 
 	void poll_file() override {
+		if(!this->path_vecs.empty()) return;
 		this->find_files(this->path);
 	}
 
