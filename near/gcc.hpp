@@ -162,7 +162,6 @@ public:
 			}
 
 			for(fs::path path : *this->compile_against_libs) {
-				std::cout << "File: -> " << path << "\n";
 				command += " " + path.string();
 			}
 
