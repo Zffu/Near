@@ -157,10 +157,12 @@ public:
 			command += " -shared -o " + output->get_file_name();
 
 			for(fs::path path : this->build_files) {
+				std::cout << "File: -> " << path << "\n";
 				command += " " + path.string();
 			}
 
 			for(fs::path path : *this->compile_against_libs) {
+				std::cout << "File: -> " << path << "\n";
 				command += " " + path.string();
 			}
 
