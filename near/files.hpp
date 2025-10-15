@@ -18,6 +18,7 @@ protected:
 public:
 
 	virtual void poll_file() {
+		if(!this->path_vecs.empty()) return;
 		this->path_vecs.emplace_back(this->path);
 	}
 
