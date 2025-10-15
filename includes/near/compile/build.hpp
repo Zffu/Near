@@ -7,10 +7,15 @@ namespace near {
 
 class NearBuildInstance {
 public:
+	static NearBuildInstance* current;
+
 	std::vector<fs::path> build_files;
+	FileStream inputStream;
+
 	bool active;
 
 	NearBuildInstance() {
+		NearBuildInstance::current = this;
 		this->active = true;
 	}
 
