@@ -99,7 +99,7 @@ public:
 	inline void build(FileSource* source, CompilerOutput* output) {
 		source->poll_file();
 		this->compile_against_libs->poll_file();
-		
+
 		if(output->type == EXECUTABLE) {
 			if(!this->build_normal(source, output)) {
 				this->fail_build();
@@ -153,7 +153,7 @@ public:
 				return;
 			}
 
-			std::string command = (this->useCPP ? "gcc" : "g++");
+			std::string command = (this->useCPP ? "g++" : "gcc");
 			command += " -shared -o " + output->get_file_name();
 
 			for(fs::path path : this->build_files) {
