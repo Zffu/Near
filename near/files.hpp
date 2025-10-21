@@ -65,7 +65,6 @@ private:
 	std::vector<fs::path> ignored_paths;
 
 	void find_files(const fs::path& path) {
-		std::cout << " Bob";
 		for(const auto& entry : fs::directory_iterator(path)) {
 			if(fs::is_directory(entry) && std::find(this->ignored_paths.begin(), this->ignored_paths.end(), path) == this->ignored_paths.end()) {
 				find_files(entry.path());

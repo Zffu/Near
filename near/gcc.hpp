@@ -98,7 +98,7 @@ public:
 
 	inline void build(FileSource* source, CompilerOutput* output) {
 		source->poll_file();
-		this->compile_against_libs->poll_file();
+		if(this->compile_against_libs != nullptr) this->compile_against_libs->poll_file();
 
 		if(output->type == EXECUTABLE) {
 			if(!this->build_normal(source, output)) {
