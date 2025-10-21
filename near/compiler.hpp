@@ -122,6 +122,8 @@ public:
 		this->use_singleton_building = false;
 
 		this->position_independant = false;
+
+		this->compile_against_libs = nullptr;
 	}
 
 	void add_include_path(std::string path) {
