@@ -62,11 +62,18 @@ public:
 class FolderFileSource: public FileSource {
 private:
 	std::vector<std::string> extensions;
-	std::vector<fs::path> ignored_paths;
+	std::vector<std::string> ignored_paths;
+
+	inline bool can_walk_trough(fs::path path) {
+		for(std::string exclude : ignored_paths) {
+			if(path.string().contains(exclude)) return false;
+		}
+		return true;
+	}
 
 	void find_files(const fs::path& path) {
 		for(const auto& entry : fs::directory_iterator(path)) {
-			if(fs::is_directory(entry) && std::find(this->ignored_paths.begin(), this->ignored_paths.end(), path) == this->ignored_paths.end()) {
+			if(fs::is_directory(entry) && this->can_walk_trough(entry.path())) {
 				find_files(entry.path());
 			} else if(fs::is_regular_file(entry) && std::find(this->extensions.begin(), this->extensions.end(), entry.path().extension().string()) != this->extensions.end()) {
 				this->path_vecs.push_back(entry.path().string());
@@ -87,7 +94,7 @@ public:
 		this->extensions.emplace_back(ext);
 	}
 
-	void add_ignored_path(fs::path path) {
+	void add_ignored_path(std::string path) {
 		this->ignored_paths.emplace_back(path);
 	}
 
