@@ -1,13 +1,13 @@
 #include <near.hpp>
 #include <compiler.hpp>
 #include <files.hpp>
-#include <gcc.hpp>
+#include <clang.hpp>
 
 using namespace near;
 using namespace near::compilers;
 
 void build_normal() {
-	GCCCompiler compiler("c++20");
+	ClangCompiler compiler("c++20");
 	
 	compiler.optimized_settings();
 

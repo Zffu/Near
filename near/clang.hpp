@@ -6,7 +6,7 @@
 
 namespace near::compilers {
 
-enum GCCOptimizationLevel {
+enum ClangOptimizationLevel {
 	O_ZERO = 0,
 	O_ONE = 1,
 	O_TWO = 2,
@@ -15,12 +15,12 @@ enum GCCOptimizationLevel {
 	O_FAST = 5
 };
 
-class GCCCompiler: public Compiler {
+class ClangCompiler: public Compiler {
 protected:
 	bool useCPP;
 
 public:	
-	GCCCompiler(std::string reference, bool useCplusplus = false): Compiler(reference) {
+	ClangCompiler(std::string reference, bool useCplusplus = false): Compiler(reference) {
 		this->useCPP = useCplusplus;
 	}
 
@@ -58,11 +58,16 @@ public:
 	inline std::string prepare_build_command(FileSource* source) {
 		source->poll_file();
 
-		std::string command = (this->useCPP ? "g++" : "gcc");
+		std::string command = (this->useCPP ? "clang++" : "clang");
 
 		if(this->compile_only) command += " -c";
 	
 		if(this->warnings) command += " -Wall";
+		else command += " -w";
+
+		if(this->address_sanitize) command += " -fsanitize=address";
+		if(this->better_straces) command += " -fno-omit-frame-pointer";
+		
 		if(this->extra_warnings) command += " -Wextra";
 		if(this->position_independant) command += " -fPIC";
 
@@ -79,18 +84,18 @@ public:
 			command += " -I" + path;
 		}
 
+		command += " -std=" + this->ref;
+
+		for(fs::path path : *source) {
+			command += " " + path.string();
+		}
+
 		for(std::string path : this->lib_paths) {
 			command += " -L" + path;
 		}
 
 		for(std::string lib : this->libs) {
-			command += " -I" + lib;
-		}
-
-		command += " -std=" + this->ref;
-
-		for(fs::path path : *source) {
-			command += " " + path.string();
+			command += " -l" + lib;
 		}
 
 		return command;

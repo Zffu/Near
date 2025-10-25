@@ -83,6 +83,8 @@ public:
 
 	bool warnings;
 	bool extra_warnings;
+	bool address_sanitize;
+	bool better_straces;
 
 	int optimization_level;
 
@@ -131,7 +133,7 @@ public:
 	}
 
 	void add_lib_path(std::string path) {
-		this->include_paths.emplace_back(path);
+		this->lib_paths.emplace_back(path);
 	}
 
 	void bind_libs(FileSource* source) {
@@ -147,6 +149,8 @@ public:
 		this->optimization_level = 0;
 		this->warnings = true;
 		this->extra_warnings = true;
+		this->better_straces = true;
+		this->address_sanitize = true;
 	}
 
 	void post_build() {
